@@ -69,6 +69,7 @@
 
 .text {
   width: 70%;
+  display: flex;
 }
 
 .file-container {
@@ -95,9 +96,9 @@
 }
 
 .icons {
-  height: 40px;
-  width: 40px;
-  margin-left: 5px;
+  height: 20px;
+  width: 20px;
+  margin-left: 10px;
 }
 .para {
   margin-block-start: 3px;
@@ -124,7 +125,48 @@
   display: flex;
 }
 
+
+@font-face {
+  font-family: 'SFMonoRegular';
+  src: url('./assets/SFMonoRegular.woff') format('woff');
+}
+
 .area {
   resize: none;
   font-size: 0.8rem;
+  color: white;
+  background-color: color(srgb 0.0997 0.0899 0.1326);
+  border: none;
+  font-family: 'SFMonoRegular';
+}
+
+textarea:focus {
+  outline: none;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.line-numbers {
+  font-size: 0.8rem;
+  padding-right: 10px;
+  background-color: color(srgb 0.0997 0.0899 0.1326);
+  padding-left: 10px;
+}
+
+.line-number {
+  line-height: 21px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: grey;
+  opacity: 0.8;
+  height: 0.8rem;
+  padding-bottom: 0.14rem;
+}
+
+.mirror-view {
+  font-size: 0.4rem;
+  text-align: start;
+  align-self: start;
+  white-space: pre;
+  position: sticky;
 }

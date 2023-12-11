@@ -3,7 +3,9 @@ import "./App.css";
 import FileExplorer from "./components/file-explorer";
 import { useFileContext } from "./components/file-explorer";
 import { invoke } from "@tauri-apps/api";
-import papier from './assets/papier.png';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFolderTree } from "@fortawesome/free-solid-svg-icons";
+
 
 
 
@@ -45,7 +47,7 @@ function App() {
 
   const handleResizeOn = () => {
     // Mise à jour du nombre de colonnes en fonction de la largeur de la fenêtre
-    const newCols = (Math.floor(window.innerWidth / 6)) - 63; // Ajustez selon vos besoins
+    const newCols = (Math.floor(window.innerWidth / 6)) - 60; // Ajustez selon vos besoins
     setTextareaCols(newCols);
   };
 
@@ -99,7 +101,7 @@ function App() {
       <div className="page">
         <div className={isClicked ? 'toolbars' : 'toolbars-hidden'}>
           <div className="toolbars-button first" onClick={handleClick}>
-            <img src={papier} alt="file" className="icons" />
+            <FontAwesomeIcon icon={faFolderTree} color="white" className="icons" />
           </div>
           <div className={isClicked ? "file-container" : "file-container-hidden"}>
             <FileExplorer />
@@ -107,6 +109,13 @@ function App() {
           <div className="toolbars-button seconds" onClick={handleClick}></div>
         </div>
         <div className="text">
+          <div className="line-numbers">
+              {fileContent.split('\n').map((_, index) => (
+                <div key={index + 1} className="line-number">
+                  {index + 1}
+                </div>
+              ))}
+            </div>
           <textarea className="area" id="" cols={textareaCols} rows={150} value={fileContent} onChange={(e) => setFileContent(e.target.value)}></textarea>
         </div>
       </div>

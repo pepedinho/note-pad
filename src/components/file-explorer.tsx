@@ -6,10 +6,12 @@ import image from '../assets/image.png';
 import texte from '../assets/format-de-texte.png';
 import crabe from '../assets/rust.png';
 import json from '../assets/dossier.png';
-import gear from '../assets/Gear-icon.png';
+import gear from '../assets/gear.svg';
 import lock from '../assets/ferme-long-lock.png';
 import lines from '../assets/lines.png';
-import newFile from '../assets/new_file.png'
+import newFile from '../assets/new_file.png';
+
+
 
 
 
@@ -79,33 +81,44 @@ function FileExplorer() {
     
 
 
-    const handleFileClick = async (file: FileSystemEntry) => {
-        if (file.is_directory) {
+      const handleFileClick = async (file: FileSystemEntry) => {
+    if (file.is_directory) {
         try {
             const folderName = file.name;
 
             // Créez une copie de l'objet actuel pour pouvoir le modifier
             const newExpandedFolders = { ...expandedFolders };
-
             // Vérifiez si le dossier est déjà ouvert
             if (newExpandedFolders[folderName]) {
-            // Fermez le dossier en retirant son contenu de l'objet
-            delete newExpandedFolders[folderName];
+                // Fermez le dossier en retirant son contenu de l'objet
+                delete newExpandedFolders[folderName];
             } else {
-            // Ouvrez le dossier en ajoutant son contenu à l'objet
-            const result = await invoke("get_directory_content", { directory: folderName });
-            if (Array.isArray(result)) {
-                newExpandedFolders[folderName] = result;
+                // Ouvrez le dossier en ajoutant son contenu à l'objet
+                const result = await invoke("get_directory_content", { directory: folderName });
+                if (Array.isArray(result)) {
+                    // Ajoutez uniquement le contenu du dossier spécifique actuellement cliqué
+                    newExpandedFolders[folderName] = result;
+    
+                    // Appel récursif pour chaque sous-dossier
+                    for (const innerFile of result) {
+                        if (innerFile.is_directory) {
+                            const innerResult = await invoke("get_directory_content", { directory: `${folderName}/${innerFile.name}` });
+                            if (Array.isArray(innerResult)) {
+                                newExpandedFolders[`${folderName}/${innerFile.name}`] = innerResult;
+                            }
+                        }
+                    }
+                }
             }
-            }
-
+    
             // Mettez à jour l'objet des dossiers ouverts
             setExpandedFolders(newExpandedFolders);
+            console.log(`expended folder: ${expandedFolders}`);
         } catch (error) {
             console.error(`Error handling click for directory ${file.name}:`, error);
         }
-        }
-    };
+    }
+};
 
     const getFileExtension = (fileName: string): string | null => {
       const parts = fileName.split('.');
@@ -137,6 +150,29 @@ function FileExplorer() {
       }
     }
 
+    function renderFile(file: FileSystemEntry, parentFolder: string | null = null) {
+
+    const key = parentFolder ? `${parentFolder}/${file.name}` : file.name;
+
+    return (
+        <div key={key} className="file-name" onClick={file.is_directory ? () => handleFileClick(file) : () => openFile(file.name, parentFolder)}>
+            <div className="file-name-inline">
+                <img className="file-icons" src={iconDistrib(getFileExtension(file.name), file.is_directory) ?? lines} alt="" />
+                <p className="para">{file.name}</p>
+            </div>
+            {file.is_directory && (
+                <div className="" style={{ display: expandedFolders[file.name] ? '' : 'none' }}>
+                    {expandedFolders[file.name] ? (
+                        expandedFolders[file.name].map(innerFile => renderFile(innerFile, file.name))
+                    ) : (
+                        <p>No sub-files found.</p>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 
     return (
         <div className="file-explorer">
@@ -144,25 +180,7 @@ function FileExplorer() {
             <p>src-tauri</p>
             <img className="file-icons" src={newFile} alt="" />
           </div>
-              {fileList.map((file, index) => (
-                <div key={index} className="file-name" onClick={file.is_directory ?  () => handleFileClick(file) : () =>  openFile(file.name) }>
-                  <div className="file-name-inline">
-                    <img className="file-icons" src={iconDistrib(getFileExtension(file.name), file.is_directory)! ?? lines} alt="" />
-                   <p className="para">{file.name}</p>
-                  </div>
-                  {file.is_directory && (
-                  <div style={{ display: expandedFolders[file.name] ? '' : 'none' }}>
-                    {expandedFolders[file.name] &&
-                      expandedFolders[file.name].map((innerFile, innerIndex) => (
-                        <div key={innerIndex} className="unwrapped-file-name" onClick={ innerFile.is_directory ? () => handleFileClick(innerFile) : () => openFile(innerFile.name, file.name)}>
-                            <img className="file-icons" src={iconDistrib(getFileExtension(innerFile?.name), innerFile?.is_directory)! ?? lines}></img>
-                          <p className="para" >{innerFile.name}</p>
-                        </div>
-                      ))}
-                  </div>
-                )}
-                </div>
-              ))}
+              {fileList.map(file => renderFile(file))}
             </div>
     )
 }
