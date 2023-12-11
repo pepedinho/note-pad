@@ -65,6 +65,35 @@ function App() {
   }, [isClicked]);
 
 
+  const handleSave = async () => {
+    if (isOpen && fileName) {
+      try {
+        await invoke("save_file_content", { params: { file_path: fileName, content: fileContent } });
+        console.log(`saved file ${fileName}`);
+      } catch (error) {
+        console.error("error saving file content:", error);
+      }
+    }
+  }
+
+
+
+  const handleSaveShortcut = (e: KeyboardEvent) => {
+    if ((e.metaKey ||e.ctrlKey) && e.key === "s") {
+      e.preventDefault();
+      handleSave();
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleSaveShortcut);
+
+    return () => {
+      window.removeEventListener("keydown", handleSaveShortcut);
+    }
+  })
+
+
   return (
     <div className="container">
       <div className="page">
@@ -78,7 +107,7 @@ function App() {
           <div className="toolbars-button seconds" onClick={handleClick}></div>
         </div>
         <div className="text">
-          <textarea id="" cols={textareaCols} rows={150} value={fileContent} onChange={(e) => setFileContent(e.target.value)}></textarea>
+          <textarea className="area" id="" cols={textareaCols} rows={150} value={fileContent} onChange={(e) => setFileContent(e.target.value)}></textarea>
         </div>
       </div>
     </div>

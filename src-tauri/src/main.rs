@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::fs;
+use std::{fs, fmt::format};
 use serde::Serialize;
 use std::path::Path;
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
@@ -15,6 +15,12 @@ struct FileSystemEntry{
 #[derive(Debug, serde::Deserialize, Serialize)]
 struct FileContent{
     name: String,
+    content: String,
+}
+
+#[derive(serde::Deserialize)]
+struct SaveFileParams {
+    file_path: String,
     content: String,
 }
 
@@ -89,6 +95,17 @@ fn get_file_content(file_path: &str) -> Option<FileContent> {
     }
 }
 
+
+#[tauri::command]
+fn save_file_content(params: SaveFileParams) -> Result<(), String> {
+    let SaveFileParams {file_path, content } = params;
+    if let Err(e) = fs::write(&file_path, content) {
+        return Err(format!("Error saving file content : {}", e));
+    }
+
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
 
@@ -96,6 +113,7 @@ fn main() {
             get_workspace_content,
             get_directory_content,
             get_file_content,
+            save_file_content,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

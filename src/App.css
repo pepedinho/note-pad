@@ -123,3 +123,8 @@
 .file-name-inline {
   display: flex;
 }
+
+.area {
+  resize: none;
+  font-size: 0.8rem;
+}
