@@ -1,4 +1,4 @@
-import {  useEffect, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import "./App.css";
 import FileExplorer from "./components/file-explorer";
 import { useFileContext } from "./components/file-explorer";
@@ -87,51 +87,56 @@ function App() {
     }
   }
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const autoCloseBrackets = async (key: string) => {
-    if (['(', '{', '['].includes(key)) {
+  const autoCloseBrackets = async () => {
+
       try {
-          const updatedContent = await invoke<String>("auto_close_brackets", { input: fileContent });
-          console.log("Updated content from Rust:", updatedContent);
+          const cursorPosition = textareaRef.current?.selectionStart ?? null;
+          const updatedContent = await invoke<String>("auto_close_brackets", {
+              input: fileContent,
+              selection_start: cursorPosition,
+          });
           setFileContent(String(updatedContent));
       } catch (error) {
           console.error("Error auto-closing brackets:", error);
       }
-    }
-};
 
-  
-  
-  const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-  
-      const { selectionStart, selectionEnd } = e.currentTarget;
-      const currentContent = fileContent;
-  
-      // Obtenez la partie du texte avant et après la sélection
-      const beforeSelection = currentContent.substring(0, selectionStart);
-      const selectedText = currentContent.substring(selectionStart, selectionEnd);
-      const afterSelection = currentContent.substring(selectionEnd);
-  
-      // Ajoutez une tabulation au début de chaque ligne sélectionnée
-      const indentedText = selectedText.replace(/^/gm, "\t");
-  
-      // Mettez à jour le contenu du fichier avec le texte modifié
-      const newContent = beforeSelection + indentedText + afterSelection;
-      setFileContent(newContent);
-  
-      // Mettez à jour l'affichage du texte dans la zone de texte
-      e.currentTarget.value = newContent;
-    }else if (e.key === '(' || e.key === '[' || e.key === '{') {
-      autoCloseBrackets(e.key);
-    }
   };
 
+  
+  
+const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
 
-  useEffect(() => {
-    autoCloseBrackets('');
-  }, [fileContent]);
+    const { selectionStart, selectionEnd } = e.currentTarget;
+    const currentContent = fileContent;
+
+    // Get the text portion before and after the selection
+    const beforeSelection = currentContent.substring(0, selectionStart);
+    const selectedText = currentContent.substring(selectionStart, selectionEnd);
+    const afterSelection = currentContent.substring(selectionEnd);
+
+    // Add a tab to the beginning of each selected line
+    const indentedText = selectedText.replace(/^/gm, "\t");
+
+    // Update the file content with the modified text
+    const newContent = beforeSelection + indentedText + afterSelection;
+    setFileContent(newContent);
+
+    // Update the text display in the text area
+    e.currentTarget.value = newContent;
+  }else if (e.key === '(' || e.key === '[' || e.key === '{') {
+    autoCloseBrackets();
+  }
+};
+
+
+  // useEffect(() => {
+  //   autoCloseBrackets();
+  //   console.log('auto close')
+  // }, [fileContent]);
   
   useEffect(() => {
     window.addEventListener("keydown", handleSaveShortcut);
@@ -163,7 +168,7 @@ function App() {
                 </div>
               ))}
             </div>
-          <textarea className="area" id="" cols={textareaCols} rows={150} value={fileContent} onChange={(e) => setFileContent(e.target.value)} onKeyDown={handleTabKey}></textarea>
+          <textarea ref={textareaRef} className="area" id="" cols={textareaCols} rows={150} value={fileContent} onChange={(e) => setFileContent(e.target.value)} onKeyDown={handleTabKey}></textarea>
         </div>
       </div>
     </div>

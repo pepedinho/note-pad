@@ -2,7 +2,6 @@
 use std::fs;
 use serde::Serialize;
 use std::path::Path;
-use tauri::Manager;
 
 mod lib;
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
@@ -110,8 +109,8 @@ fn save_file_content(params: SaveFileParams) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn auto_close_brackets(input: String) -> String {
-    lib::auto_close_brackets(&input)
+fn auto_close_brackets(input: String, selection_start: Option<usize>) -> String {
+    lib::auto_close_brackets(&input, selection_start)
 }
 
 fn main() {
