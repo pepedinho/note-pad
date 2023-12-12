@@ -134,6 +134,7 @@
 .area {
   resize: none;
   font-size: 0.8rem;
+  tab-size: 4;
   color: white;
   background-color: color(srgb 0.0997 0.0899 0.1326);
   border: none;
@@ -142,7 +143,7 @@
 
 textarea:focus {
   outline: none;
-  white-space: nowrap;
+  white-space: pre-wrap;
   overflow-x: auto;
 }
 

@@ -1,7 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::{fs, fmt::format};
+use std::fs;
 use serde::Serialize;
 use std::path::Path;
+use tauri::Manager;
+
+mod lib;
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 
 //use std::fmt::format;
@@ -106,6 +109,11 @@ fn save_file_content(params: SaveFileParams) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn auto_close_brackets(input: String) -> String {
+    lib::auto_close_brackets(&input)
+}
+
 fn main() {
     tauri::Builder::default()
 
@@ -114,6 +122,7 @@ fn main() {
             get_directory_content,
             get_file_content,
             save_file_content,
+            auto_close_brackets,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
