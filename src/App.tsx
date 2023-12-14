@@ -113,17 +113,39 @@ const autoCloseBrackets = async (brac: string) => {
       if (cursorPosition !== null && cursorPosition !== undefined) {
           const textBeforeCursor = fileContent.substring(0, cursorPosition);
           const selectedText = fileContent.substring(selectionStart, selectionEnd);
+          const textAfterCursor = fileContent.substring(cursorPosition + (selectionEnd - selectionStart));
           let updatedContent: string;
+          let newCursorPosition: number | null = null;
 
           if (selectedText.length > 0) {
               // Il y a du texte sélectionné, entourer le texte sélectionné avec les crochets appropriés
-              updatedContent = textBeforeCursor + brac + selectedText + getMatchingBracket(brac) + fileContent.substring(cursorPosition);
+              updatedContent = textBeforeCursor + brac + selectedText + getMatchingBracket(brac) + textAfterCursor;
+              console.log(`textBeforeCursor: ${textBeforeCursor} \n brac${brac} \n selectedText: ${selectedText} \n matchingbrac: ${getMatchingBracket(brac)} \n fileContent.substring(cursorPostion) : ${fileContent.substring(cursorPosition)} \n cursorPosition : ${cursorPosition}`);
+              newCursorPosition = cursorPosition + brac.length + selectedText.length + getMatchingBracket(brac).length - 1;
           } else {
               // Aucun texte sélectionné, ajouter simplement les crochets appropriés avant le curseur
               updatedContent = textBeforeCursor + brac + getMatchingBracket(brac) + fileContent.substring(cursorPosition);
+              newCursorPosition = cursorPosition + brac.length;
           }
 
           setFileContent(String(updatedContent));
+          
+
+          if (selectedText.length > 0) {
+            setTimeout(() => {
+              if (newCursorPosition !== null) {
+                textarea.setSelectionRange(newCursorPosition + getMatchingBracket(brac).length, newCursorPosition + getMatchingBracket(brac).length, "backward");
+              }
+            }, 10);
+          } else {
+            setTimeout(() => {
+              if (newCursorPosition !== null) {
+                  textarea.setSelectionRange(newCursorPosition , newCursorPosition );
+              }
+            }, 10);
+
+          }
+        
       }
   } catch (error) {
       console.error("Error auto-closing brackets:", error);
@@ -155,6 +177,7 @@ const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Update the text display in the text area
     e.currentTarget.value = newContent;
   }else if (e.key === '(' || e.key === '[' || e.key === '{') {
+    e.preventDefault();
     autoCloseBrackets(e.key);
   }
 };
