@@ -89,20 +89,47 @@ function App() {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const autoCloseBrackets = async () => {
+  const getMatchingBracket = (brac: string): string => {
+    switch (brac) {
+        case '(':
+            return ')';
+        case '{':
+            return '}';
+        case '[':
+            return ']';
+        default:
+            return brac;
+    }
+};
 
-      try {
-          const cursorPosition = textareaRef.current?.selectionStart ?? null;
-          const updatedContent = await invoke<String>("auto_close_brackets", {
-              input: fileContent,
-              selection_start: cursorPosition,
-          });
+const autoCloseBrackets = async (brac: string) => {
+  try {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const { selectionStart, selectionEnd } = textarea;
+      const cursorPosition = selectionStart !== null ? selectionStart : selectionEnd;
+
+      if (cursorPosition !== null && cursorPosition !== undefined) {
+          const textBeforeCursor = fileContent.substring(0, cursorPosition);
+          const selectedText = fileContent.substring(selectionStart, selectionEnd);
+          let updatedContent: string;
+
+          if (selectedText.length > 0) {
+              // Il y a du texte sélectionné, entourer le texte sélectionné avec les crochets appropriés
+              updatedContent = textBeforeCursor + brac + selectedText + getMatchingBracket(brac) + fileContent.substring(cursorPosition);
+          } else {
+              // Aucun texte sélectionné, ajouter simplement les crochets appropriés avant le curseur
+              updatedContent = textBeforeCursor + brac + getMatchingBracket(brac) + fileContent.substring(cursorPosition);
+          }
+
           setFileContent(String(updatedContent));
-      } catch (error) {
-          console.error("Error auto-closing brackets:", error);
       }
+  } catch (error) {
+      console.error("Error auto-closing brackets:", error);
+  }
+};
 
-  };
 
   
   
@@ -128,7 +155,7 @@ const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Update the text display in the text area
     e.currentTarget.value = newContent;
   }else if (e.key === '(' || e.key === '[' || e.key === '{') {
-    autoCloseBrackets();
+    autoCloseBrackets(e.key);
   }
 };
 

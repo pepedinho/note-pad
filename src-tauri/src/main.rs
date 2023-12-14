@@ -109,8 +109,8 @@ fn save_file_content(params: SaveFileParams) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn auto_close_brackets(input: String, selection_start: Option<usize>) -> String {
-    lib::auto_close_brackets(&input, selection_start)
+fn auto_close_brackets(input: String, selection_start: Option<usize>, car: char) -> String {
+    lib::auto_close_brackets(&input, selection_start, car)
 }
 
 fn main() {
