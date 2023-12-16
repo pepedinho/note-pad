@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::fs;
+use std::{fs::{self, File}, result};
 use serde::Serialize;
 use std::path::Path;
 
@@ -113,6 +113,16 @@ fn auto_close_brackets(input: String, selection_start: Option<usize>, car: char)
     lib::auto_close_brackets(&input, selection_start, car)
 }
 
+#[tauri::command]
+fn open_new_file(file_name: &str) -> Result<(), String> {
+    let result = File::create(file_name);
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!("Error creating file: {}", e)),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
 
@@ -122,6 +132,7 @@ fn main() {
             get_file_content,
             save_file_content,
             auto_close_brackets,
+            open_new_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

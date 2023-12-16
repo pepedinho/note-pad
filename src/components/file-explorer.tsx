@@ -10,7 +10,7 @@ import gear from '../assets/gear.svg';
 import lock from '../assets/ferme-long-lock.png';
 import lines from '../assets/lines.png';
 import newFile from '../assets/new_file.png';
-
+import NewFile from "./NewFile";
 
 
 
@@ -177,8 +177,8 @@ function FileExplorer() {
     return (
         <div className="file-explorer">
           <div className="header">
+            <NewFile/>
             <p>src-tauri</p>
-            <img className="file-icons" src={newFile} alt="" />
           </div>
               {fileList.map(file => renderFile(file))}
             </div>

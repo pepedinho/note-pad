@@ -10,6 +10,9 @@ import { faFolderTree } from "@fortawesome/free-solid-svg-icons";
 
 
 
+
+
+
 function App() {
   const [isClicked, setIsClicked] = useState(false);
   const { fileName, isOpen } = useFileContext(); 
@@ -180,7 +183,10 @@ const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     autoCloseBrackets(e.key);
   }
+  
+  
 };
+
 
 
   // useEffect(() => {
@@ -195,6 +201,7 @@ const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       window.removeEventListener("keydown", handleSaveShortcut);
     }
   })
+
 
 
 

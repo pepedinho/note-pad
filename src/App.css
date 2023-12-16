@@ -17,7 +17,7 @@
 }
 
 .toolbars {
-  width: 300px;
+  /* width: 300px; */
   gap: 10px;
   transition: all 0.5s ease-in-out;
   justify-content: start;
@@ -136,6 +136,7 @@
   font-size: 0.8rem;
   tab-size: 4;
   color: white;
+  white-space: pre;
   background-color: color(srgb 0.0997 0.0899 0.1326);
   border: none;
   font-family: 'SFMonoRegular';
@@ -170,4 +171,9 @@ textarea:focus {
   align-self: start;
   white-space: pre;
   position: sticky;
+}
+
+
+input {
+  scale : 0.7;
 }
